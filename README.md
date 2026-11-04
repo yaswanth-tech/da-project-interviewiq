@@ -1,13 +1,13 @@
 # 🧠 InterviewIQ — AI Mock Interview & Feedback Platform
 
-[![Live on Vercel](https://img.shields.io/badge/Vercel-Deployed-success?style=for-the-badge&logo=vercel)](https://frontend-seven-cyan-7ucs76horz.vercel.app)
+[![Live on Vercel](https://img.shields.io/badge/Vercel-Deployed-success?style=for-the-badge&logo=vercel)](https://da-project-interviewiq.vercel.app)
 [![React 18](https://img.shields.io/badge/Frontend-React%2018%20+%20Vite%20+%20TS-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI%20+%20Python%203.11+-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind%20CSS-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 [![Plotly](https://img.shields.io/badge/Data%20Viz-Plotly.js-3F4F75?style=for-the-badge&logo=plotly)](https://plotly.com/javascript/)
 
 > **Codegnan Hackathon 2026** • Built by Team **Data Hunters**  
-> 🌐 **Live Web Application:** [https://frontend-seven-cyan-7ucs76horz.vercel.app](https://frontend-seven-cyan-7ucs76horz.vercel.app)  
+> 🌐 **Live Web Application:** [https://da-project-interviewiq.vercel.app](https://da-project-interviewiq.vercel.app)  
 > 📂 **GitHub Repository:** [https://github.com/yaswanth-tech/da-project-interviewiq](https://github.com/yaswanth-tech/da-project-interviewiq)
 
 ---
