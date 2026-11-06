@@ -11,12 +11,33 @@ import { InterviewSession, SessionQuestion, Question } from '../types';
 
 const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1';
 
+const isLocalhost = typeof window !== 'undefined' && 
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+const envApiUrl = (import.meta as any).env?.VITE_API_BASE_URL;
+const isRemoteDemo = typeof window !== 'undefined' && !isLocalhost && (!envApiUrl || envApiUrl.includes('127.0.0.1') || envApiUrl.includes('localhost'));
+
 export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 5000,
+  timeout: isRemoteDemo ? 2000 : 5000,
+  adapter: isRemoteDemo ? async (config: any) => {
+    try {
+      const mockRes = handleMockResponse(config);
+      return {
+        data: mockRes.data,
+        status: mockRes.status,
+        statusText: 'OK',
+        headers: {},
+        config,
+        request: {}
+      };
+    } catch (err: any) {
+      return Promise.reject(err);
+    }
+  } : undefined
 });
 
 api.interceptors.request.use((config) => {
@@ -49,43 +70,70 @@ function handleMockResponse(config: AxiosRequestConfig): { status: number; data:
     const { email, password } = data;
     const lowerEmail = (email || '').toLowerCase().trim();
 
-    // Check pre-seeded demo users
-    const demo = DEMO_USERS[lowerEmail];
-    if (demo) {
-      if (demo.password === password) {
-        return {
-          status: 200,
-          data: {
-            access_token: 'mock_jwt_token_' + demo.user.id,
-            refresh_token: 'mock_refresh_' + demo.user.id,
-            token_type: 'bearer',
-            user: demo.user
-          }
-        };
-      } else {
-        throw { response: { status: 401, data: { detail: 'Incorrect email or password' } } };
-      }
+    // Check demo student accounts
+    if (lowerEmail === 'student1@interviewiq.ai' || lowerEmail.startsWith('student')) {
+      const demo = DEMO_USERS['student1@interviewiq.ai'];
+      return {
+        status: 200,
+        data: {
+          access_token: 'mock_jwt_token_' + demo.user.id,
+          refresh_token: 'mock_refresh_' + demo.user.id,
+          token_type: 'bearer',
+          user: demo.user
+        }
+      };
+    }
+
+    // Check demo trainer accounts
+    if (lowerEmail === 'trainer@interviewiq.ai' || lowerEmail.startsWith('trainer') || lowerEmail.startsWith('admin')) {
+      const demo = DEMO_USERS['trainer@interviewiq.ai'];
+      return {
+        status: 200,
+        data: {
+          access_token: 'mock_jwt_token_' + demo.user.id,
+          refresh_token: 'mock_refresh_' + demo.user.id,
+          token_type: 'bearer',
+          user: demo.user
+        }
+      };
     }
 
     // Check newly registered users in localStorage
     const storedUsers = JSON.parse(localStorage.getItem('mock_registered_users') || '{}');
     if (storedUsers[lowerEmail]) {
-      if (storedUsers[lowerEmail].password === password) {
-        return {
-          status: 200,
-          data: {
-            access_token: 'mock_jwt_token_' + storedUsers[lowerEmail].user.id,
-            refresh_token: 'mock_refresh_' + storedUsers[lowerEmail].user.id,
-            token_type: 'bearer',
-            user: storedUsers[lowerEmail].user
-          }
-        };
-      } else {
-        throw { response: { status: 401, data: { detail: 'Incorrect email or password' } } };
-      }
+      return {
+        status: 200,
+        data: {
+          access_token: 'mock_jwt_token_' + storedUsers[lowerEmail].user.id,
+          refresh_token: 'mock_refresh_' + storedUsers[lowerEmail].user.id,
+          token_type: 'bearer',
+          user: storedUsers[lowerEmail].user
+        }
+      };
     }
 
-    throw { response: { status: 401, data: { detail: 'Incorrect email or password' } } };
+    // Permissive fallback so testing in demo never gets blocked
+    const fallbackUser = {
+      id: Date.now(),
+      email: lowerEmail || 'candidate@interviewiq.ai',
+      full_name: (lowerEmail.split('@')[0] || 'Candidate').toUpperCase(),
+      role: 'student',
+      created_at: new Date().toISOString(),
+      profile: {
+        college: 'General College',
+        target_role: 'Python Developer',
+        experience_level: 'Fresher'
+      }
+    };
+    return {
+      status: 200,
+      data: {
+        access_token: 'mock_jwt_token_' + fallbackUser.id,
+        refresh_token: 'mock_refresh_' + fallbackUser.id,
+        token_type: 'bearer',
+        user: fallbackUser
+      }
+    };
   }
 
   // 2. Auth Register
